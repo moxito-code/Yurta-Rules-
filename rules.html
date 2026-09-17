@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111019">
+<title>Правила Юрты Хелпера — Патч 5.1</title>
+<style>
+:root {
+  --bg: #0e0d14;
+  --panel: #171520;
+  --panel2: #211d30;
+  --line: #302a43;
+  --text: #f4f0ff;
+  --muted: #aaa2bd;
+  --accent: #b69aff;
+  --accent2: #8c65e8;
+  --shadow: 0 12px 34px #0004;
+
+  /* Цвета наказаний */
+  --badge-green-bg: #1a3323;
+  --badge-green-text: #8bf5ab;
+  --badge-green-border: #295738;
+
+  --badge-yellow-bg: #38301a;
+  --badge-yellow-text: #ffe082;
+  --badge-yellow-border: #5c4d23;
+
+  --badge-orange-bg: #38251a;
+  --badge-orange-text: #ffb74d;
+  --badge-orange-border: #5c3923;
+
+  --badge-red-bg: #381a24;
+  --badge-red-text: #ff8a80;
+  --badge-red-border: #632235;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: radial-gradient(ellipse at 85% 0%, #30234b 0, transparent 34%), var(--bg);
+  color: var(--text);
+  font: 16px/1.58 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+a { color: var(--accent); }
+.wrap { width: min(920px, 100% - 28px); margin: auto; padding: 26px 0 60px; }
+
+/* Hero */
+.hero {
+  padding: 28px 24px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: linear-gradient(135deg, #211a32dd, #14121de8);
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+.eyebrow { font-size: 11px; letter-spacing: .18em; color: var(--accent); font-weight: 800; text-transform: uppercase; }
+.hero h1 { font-size: clamp(32px, 8vw, 54px); line-height: 1.05; margin: 12px 0 8px; letter-spacing: -.04em; }
+.hero p { margin: 0; color: var(--muted); }
+.tag {
+  display: inline-flex;
+  margin-top: 18px;
+  padding: 6px 11px;
+  border-radius: 99px;
+  background: #392d55;
+  color: #e4d8ff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Tools */
+.tools { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 18px 0; }
+.search {
+  width: 100%;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: var(--text);
+  font: inherit;
+  outline: none;
+}
+.search:focus { border-color: var(--accent2); box-shadow: 0 0 0 3px #8c65e833; }
+.nav { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 8px; scrollbar-width: thin; }
+.nav a {
+  white-space: nowrap;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  background: var(--panel);
+  color: var(--muted);
+}
+.nav a:hover, .nav a:focus { color: var(--text); border-color: var(--accent2); }
+
+/* SVG Иконки категорий */
+.category-icon {
+  width: 22px;
+  height: 22px;
+  fill: var(--accent);
+  flex-shrink: 0;
+}
+
+/* Sections */
+.section {
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
+  overflow: hidden;
+  scroll-margin-top: 12px;
+}
+.section summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 17px 18px;
+  background: linear-gradient(90deg, #221c31, #171520);
+  font-weight: 800;
+}
+.section summary::-webkit-details-marker { display: none; }
+.num { display: grid; place-items: center; min-width: 42px; height: 42px; border-radius: 13px; background: #3a2b55; color: #e4d8ff; font-size: 13px; }
+.sumtitle { flex: 1; display: flex; align-items: center; gap: 10px; }
+.chev { color: var(--accent); transition: transform .2s; }
+.section[open] .chev { transform: rotate(180deg); }
+.section-body { padding: 4px 18px 18px; }
+
+/* Rule Card */
+.rule {
+  padding: 16px;
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel2);
+  transition: all .2s ease;
+  scroll-margin-top: 20px;
+}
+.rule:hover { border-color: var(--accent2); }
+.rule-head { display: flex; align-items: flex-start; gap: 10px; font-weight: 750; }
+.rule-num { color: var(--accent); font-variant-numeric: tabular-nums; min-width: 36px; }
+.rule p { margin: 8px 0 0; color: #e1dce9; font-size: 14.5px; }
+
+/* Ссылки на UT */
+.ut-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 10px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity .2s;
+}
+.ut-link:hover { opacity: .8; text-decoration: underline; }
+
+/* Кнопка возврата из UT */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+}
+.back-link:hover { color: var(--accent); text-decoration: underline; }
+
+/* Эффект подсветки при переходе по ссылке */
+.rule:target {
+  border-color: var(--accent);
+  box-shadow: 0 0 15px rgba(182, 154, 255, 0.4);
+}
+
+/* Penalties Wrapper & Badges */
+.penalties-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.penalty {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 750;
+  border: 1px solid transparent;
+}
+
+/* Цветовые схемы плашек */
+.penalty-warn {
+  background: var(--badge-green-bg);
+  color: var(--badge-green-text);
+  border-color: var(--badge-green-border);
+}
+.penalty-mute-short {
+  background: var(--badge-yellow-bg);
+  color: var(--badge-yellow-text);
+  border-color: var(--badge-yellow-border);
+}
+.penalty-mute-long {
+  background: var(--badge-orange-bg);
+  color: var(--badge-orange-text);
+  border-color: var(--badge-orange-border);
+}
+.penalty-ban {
+  background: var(--badge-red-bg);
+  color: var(--badge-red-text);
+  border-color: var(--badge-red-border);
+}
+
+.icon-cross-circle {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  fill: currentColor;
+}
+
+.note { margin-top: 10px; color: var(--muted); font-size: 13px; }
+.subhead { color: var(--accent); font-weight: 800; margin: 20px 0 8px; }
+.foot { margin-top: 34px; text-align: center; color: var(--muted); font-size: 12px; }
+.empty { display: none; padding: 22px; text-align: center; color: var(--muted); }
+
+mark { background: #b69aff; color: #0e0d14; border-radius: 3px; padding: 0 3px; font-weight: 700; }
+
+.back-to-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--accent2);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all .2s ease;
+  z-index: 100;
+}
+.back-to-top.visible { opacity: 1; visibility: visible; }
+.back-to-top:hover { transform: translateY(-3px); background: var(--accent); }
+
+@media(min-width:680px){
+  .hero { padding: 36px; }
+  .section summary { padding: 19px 22px; }
+  .section-body { padding: 4px 22px 20px; }
+}
+</style>
+</head>
+<body>
+
+<svg style="display:none;">
+  <symbol id="cross-circle-icon" viewBox="0 0 16 16">
+    <path d="M8 0a8 8 0 1 0 8 8A8 8 0 0 0 8 0zm3.5 10.1-1.4 1.4L8 9.4l-2.1 2.1-1.4-1.4L6.6 8 4.5 5.9l1.4-1.4L8 6.6l2.1-2.1 1.4 1.4L9.4 8z"/>
+  </symbol>
+
+  <symbol id="icon-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></symbol>
+  <symbol id="icon-coin" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></symbol>
+  <symbol id="icon-bullhorn" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H4V4h14v10z"/></symbol>
+  <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-5.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8s0 0 0 0z"/></symbol>
+  <symbol id="icon-swords" viewBox="0 0 24 24"><path d="M19.37 12.8 21 11.17l-4.59-4.58 1.63-1.63-1.42-1.42-1.63 1.63L10.41 .59 8.99 2.01l2.83 2.83L2.41 14.25l1.42 1.42 9.41-9.41 2.83 2.83 1.42-1.42-2.83-2.83 4.59 4.59zM4.17 19.37l-1.6 1.6 1.42 1.42 1.6-1.6 2.83 2.83 1.42-1.42-2.83-2.83 9.41-9.41-1.42-1.42-9.41 9.41z"/></symbol>
+  <symbol id="icon-chat" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></symbol>
+  <symbol id="icon-user" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></symbol>
+  <symbol id="icon-globe" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></symbol>
+  <symbol id="icon-alert" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></symbol>
+  <symbol id="icon-skull" viewBox="0 0 24 24"><path d="M12 2a9 9 0 0 0-9 9c0 2.86 1.34 5.41 3.44 7.06L6 20a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-1h4v1a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1l-.44-1.94A8.96 8.96 0 0 0 21 11a9 9 0 0 0-9-9zm-3 10a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></symbol>
+  <symbol id="icon-lock" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></symbol>
+  <symbol id="icon-info" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></symbol>
+</svg>
+
+<main class="wrap">
+<header class="hero">
+  <div class="eyebrow">Yurta Helper · Community</div>
+  <h1>Правила<br>Юрты Хелпера</h1>
+  <p>Читай или Бан</p>
+  <span class="tag">PATCH 5.1 · 17.09.2026</span>
+</header>
+
+<div class="tools">
+  <input id="search" class="search" type="search" placeholder="⌕ Найти правило, слово или наказание…" aria-label="Поиск по правилам">
+  <nav class="nav" aria-label="Навигация по разделам">
+    <a href="#s0">00 Особые</a>
+    <a href="#s1">01 Попрошайничество</a>
+    <a href="#s2">02 Реклама</a>
+    <a href="#s3">03 Провокации и Травля</a>
+    <a href="#s4">04 Конфликты</a>
+    <a href="#s5">05 Спам</a>
+    <a href="#s6">06 Поведение</a>
+    <a href="#s7">07 Дискриминация</a>
+    <a href="#s8">08 Контент</a>
+    <a href="#s9">09 Рейды</a>
+    <a href="#s10">10 Данные</a>
+    <a href="#ut">UT Уточнения</a>
+  </nav>
+</div>
+
+<div id="sections">
+
+<!-- Раздел 00 -->
+<details class="section" id="s0" open>
+  <summary>
+    <span class="num">00</span>
+    <span class="sumtitle"><svg class="category-icon"><use href="#icon-star"/></svg> Правила особой категории</span>
+    <span class="chev">⌄</span>
+  </summary>
+  <div class="section-body">
+    <article class="rule" id="r0-1">
+      <div class="rule-head"><span class="rule-num">0.1</span><span>Использование твинков с целью обхода наказания.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-ban"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Бан на 10 дней</span>
+        <span class="penalty penalty-ban"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Бан навсегда</span>
+      </div>
+    </article>
+    <article class="rule" id="r0-2">
+      <div class="rule-head"><span class="rule-num">0.2</span><span>Использование уязвимостей и недочётов в правилах для получения собственной выгоды.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-long"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 3 дня</span>
+        <span class="penalty penalty-ban"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Бан навсегда</span>
+      </div>
+    </article>
+    <article class="rule" id="r0-3">
+      <div class="rule-head"><span class="rule-num">0.3</span><span>Создание опросов или отправка сообщений, содержащих ахинею, абсурд, дезинформацию или информационные вбросы.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 1 час</span>
+      </div>
+      <a href="#ut-1" class="ut-link">➔ UT.1 — Подробности про дезинформацию</a>
+    </article>
+    <article class="rule" id="r0-4">
+      <div class="rule-head"><span class="rule-num">0.4</span><span>Плагиат / присвоение чужих работ.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 10 часов</span>
+        <span class="penalty penalty-ban"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Бан</span>
+      </div>
+    </article>
+  </div>
+</details>
+
+<!-- Раздел 01 -->
+<details class="section" id="s1" open>
+  <summary>
+    <span class="num">01</span>
+    <span class="sumtitle"><svg class="category-icon"><use href="#icon-coin"/></svg> Попрошайничество</span>
+    <span class="chev">⌄</span>
+  </summary>
+  <div class="section-body">
+    <article class="rule" id="r1-1">
+      <div class="rule-head"><span class="rule-num">1.1</span><span>Попрошайничество игровой / реальной / цифровой / крипто валюты.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 8 часов</span>
+        <span class="penalty penalty-ban"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Бан на 2 дня</span>
+      </div>
+      <a href="#ut-3" class="ut-link">➔ UT.3 — О завышенных ценах и оверпрайсе</a>
+    </article>
+  </div>
+</details>
+
+<!-- Раздел 02 -->
+<details class="section" id="s2" open>
+  <summary>
+    <span class="num">02</span>
+    <span class="sumtitle"><svg class="category-icon"><use href="#icon-bullhorn"/></svg> Реклама</span>
+    <span class="chev">⌄</span>
+  </summary>
+  <div class="section-body">
+    <p class="note">Запрещена любая реклама, кроме согласованной с Создателем проекта.</p>
+    <article class="rule" id="r2-1">
+      <div class="rule-head"><span class="rule-num">2.1</span><span>Сообщения, написанные от имени Telegram-каналов.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 10 часов</span>
+      </div>
+    </article>
+    <article class="rule" id="r2-2">
+      <div class="rule-head"><span class="rule-num">2.2</span><span>Сообщения, пересланные из других ТГК / ТГГ / ТГП, или ссылки на них.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 12 часов</span>
+        <span class="penalty penalty-ban"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Бан навсегда</span>
+      </div>
+    </article>
+    <article class="rule" id="r2-3">
+      <div class="rule-head"><span class="rule-num">2.3</span><span>Реклама сторонних сервисов, ботов, проектов и т.п.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 12 часов</span>
+      </div>
+    </article>
+    <article class="rule" id="r2-4">
+      <div class="rule-head"><span class="rule-num">2.4</span><span>Просьба просмотреть профиль с целью завлечения аудитории в свой ТГК / ТГГ / ТГП.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 10 часов</span>
+        <span class="penalty penalty-ban"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Бан навсегда</span>
+      </div>
+    </article>
+    <article class="rule" id="r2-5">
+      <div class="rule-head"><span class="rule-num">2.5</span><span>Просьба зайти в ТГГ / ТГК / ТГП и написать отзыв / рекомендацию или что-то другое.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 8 часов</span>
+        <span class="penalty penalty-ban"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Бан навсегда</span>
+      </div>
+    </article>
+  </div>
+</details>
+
+<!-- Раздел 03 -->
+<details class="section" id="s3" open>
+  <summary>
+    <span class="num">03</span>
+    <span class="sumtitle"><svg class="category-icon"><use href="#icon-shield"/></svg> Провокации, угрозы и травля</span>
+    <span class="chev">⌄</span>
+  </summary>
+  <div class="section-body">
+    <p class="note">Запрещён любой вид провокации, травли, запугивания и споров.</p>
+    <article class="rule" id="r3-1">
+      <div class="rule-head"><span class="rule-num">3.1</span><span>Провокация участников на нарушение правил проекта.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 12 часов</span>
+      </div>
+    </article>
+    <article class="rule" id="r3-2">
+      <div class="rule-head"><span class="rule-num">3.2</span><span>Провокация на начало спора / конфликта, а также систематическое запугивание, травля (буллинг) участников.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 10 часов</span>
+        <span class="penalty penalty-ban"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Бан на 3 дня</span>
+      </div>
+    </article>
+    <article class="rule" id="r3-3">
+      <div class="rule-head"><span class="rule-num">3.3</span><span>Провокации и действия, направленные на то, чтобы заставить пользователя покинуть проект.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-ban"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Бан на 8 суток</span>
+      </div>
+    </article>
+    <article class="rule" id="r3-4">
+      <div class="rule-head"><span class="rule-num">3.4</span><span>Реальные или завуалированные угрозы расправой, физическим вредом, деаноном или сливом личной информации.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-ban"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Бан навсегда</span>
+      </div>
+      <a href="#ut-6" class="ut-link">➔ UT.6 — Отговорки "это шутка" не принимаются</a>
+    </article>
+  </div>
+</details>
+
+<!-- Раздел 04 -->
+<details class="section" id="s4" open>
+  <summary>
+    <span class="num">04</span>
+    <span class="sumtitle"><svg class="category-icon"><use href="#icon-swords"/></svg> Спор или конфликт</span>
+    <span class="chev">⌄</span>
+  </summary>
+  <div class="section-body">
+    <article class="rule" id="r4-1">
+      <div class="rule-head"><span class="rule-num">4.1</span><span>Начало спора / конфликта.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 8 часов</span>
+      </div>
+    </article>
+    <article class="rule" id="r4-2">
+      <div class="rule-head"><span class="rule-num">4.2</span><span>Участие в споре / конфликте.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 7 часов</span>
+      </div>
+    </article>
+  </div>
+</details>
+
+<!-- Раздел 05 -->
+<details class="section" id="s5" open>
+  <summary>
+    <span class="num">05</span>
+    <span class="sumtitle"><svg class="category-icon"><use href="#icon-chat"/></svg> Спам и флуд</span>
+    <span class="chev">⌄</span>
+  </summary>
+  <div class="section-body">
+    <p class="note">Запрещён любой вид спама и флуда, а именно:</p>
+    <article class="rule" id="r5-1">
+      <div class="rule-head"><span class="rule-num">5.1</span><span>Спам / флуд картинками, видео, текстовыми и голосовыми сообщениями, стикерами, командами ботов, упоминаниями, продажей или скупкой товаров, кружочками и т.п.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 4 часа</span>
+      </div>
+    </article>
+    <article class="rule" id="r5-2">
+      <div class="rule-head"><span class="rule-num">5.2</span><span>Злоупотребление Caps Lock (верхним регистром).</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 1 час</span>
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 2 часа</span>
+      </div>
+    </article>
+  </div>
+</details>
+
+<!-- Раздел 06 -->
+<details class="section" id="s6" open>
+  <summary>
+    <span class="num">06</span>
+    <span class="sumtitle"><svg class="category-icon"><use href="#icon-user"/></svg> Неуважительное поведение</span>
+    <span class="chev">⌄</span>
+  </summary>
+  <div class="section-body">
+    <p class="note">Запрещены любые формы оскорблений, дезинформации и проявлений токсичного поведения, включая, но не ограничиваясь:</p>
+    <article class="rule" id="r6-1">
+      <div class="rule-head"><span class="rule-num">6.1</span><span>Оскорбления участников, администрации, Создателя и их родственников, а также распространение ложных обвинений и дезинформации с целью их дискредитации.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 4 часа</span>
+        <span class="penalty penalty-ban"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Бан на 5 дней</span>
+      </div>
+      <a href="#ut-4" class="ut-link">➔ UT.4 — Про шутки о "депе" родственников</a>
+    </article>
+    <article class="rule" id="r6-2">
+      <div class="rule-head"><span class="rule-num">6.2</span><span>Оскорбления чата, правил проекта или проекта в целом.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 10 часов</span>
+        <span class="penalty penalty-ban"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Бан на 10 дней</span>
+      </div>
+    </article>
+    <article class="rule" id="r6-3">
+      <div class="rule-head"><span class="rule-num">6.3</span><span>Оскорбление богов, религии, религиозных учреждений, чувств верующих. Навязывать своё мнение тоже запрещено.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 12 часов</span>
+      </div>
+    </article>
+  </div>
+</details>
+
+<!-- Раздел 07 -->
+<details class="section" id="s7" open>
+  <summary>
+    <span class="num">07</span>
+    <span class="sumtitle"><svg class="category-icon"><use href="#icon-globe"/></svg> Расизм и дискриминация</span>
+    <span class="chev">⌄</span>
+  </summary>
+  <div class="section-body">
+    <p class="note">Запрещён любой вид расизма и дискриминации.</p>
+    <article class="rule" id="r7-1">
+      <div class="rule-head"><span class="rule-num">7.1</span><span>Расизм по расовому признаку.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 10 часов</span>
+      </div>
+    </article>
+    <article class="rule" id="r7-2">
+      <div class="rule-head"><span class="rule-num">7.2</span><span>Оскорбительные выражения: «хохол», «чурка», «чушка», «какoл», «кхакол», «укроп», «свинья» (в политическом контексте) и т.п.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 10 часов</span>
+      </div>
+    </article>
+  </div>
+</details>
+
+<!-- Раздел 08 -->
+<details class="section" id="s8" open>
+  <summary>
+    <span class="num">08</span>
+    <span class="sumtitle"><svg class="category-icon"><use href="#icon-alert"/></svg> Запрещённый контент</span>
+    <span class="chev">⌄</span>
+  </summary>
+  <div class="section-body">
+    <p class="note">Запрещён любой шок-контент, политический или нацистский контент.</p>
+    <article class="rule" id="r8-1">
+      <div class="rule-head"><span class="rule-num">8.1</span><span>Нацизм и национализм.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-long"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 2 дня</span>
+      </div>
+      <a href="#ut-5" class="ut-link">➔ UT.5 — Список запрещенных символов и слов</a>
+    </article>
+    <article class="rule" id="r8-2">
+      <div class="rule-head"><span class="rule-num">8.2</span><span>Политическая тема (обсуждение любой политики).</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-long"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 1 день</span>
+      </div>
+    </article>
+    <article class="rule" id="r8-3">
+      <div class="rule-head"><span class="rule-num">8.3</span><span>Просьбы поиска контента / сообщения, содержащие следующий контент: скримеры, кровь, расчленёнка, каннибализм, педофилия, ЛГБТ+ и т.д.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-long"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 5 дней</span>
+        <span class="penalty penalty-ban"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Бан навсегда</span>
+      </div>
+    </article>
+    <article class="rule" id="r8-4">
+      <div class="rule-head"><span class="rule-num">8.4</span><span>Контент эротического характера.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-short"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 7 часов</span>
+      </div>
+    </article>
+  </div>
+</details>
+
+<!-- Раздел 09 -->
+<details class="section" id="s9" open>
+  <summary>
+    <span class="num">09</span>
+    <span class="sumtitle"><svg class="category-icon"><use href="#icon-skull"/></svg> Рейд и скам</span>
+    <span class="chev">⌄</span>
+  </summary>
+  <div class="section-body">
+    <p class="note">Запрещена любая попытка рейда или скама.</p>
+    <article class="rule" id="r9-1">
+      <div class="rule-head"><span class="rule-num">9.1</span><span>Скам / попытка скама с упоминанием нашего проекта / Создателя проекта.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-ban"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Бан навсегда</span>
+      </div>
+    </article>
+    <article class="rule" id="r9-2">
+      <div class="rule-head"><span class="rule-num">9.2</span><span>Рейд нашего проекта / призыв к рейду.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-ban"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Бан навсегда</span>
+      </div>
+    </article>
+  </div>
+</details>
+
+<!-- Раздел 10 -->
+<details class="section" id="s10" open>
+  <summary>
+    <span class="num">10</span>
+    <span class="sumtitle"><svg class="category-icon"><use href="#icon-lock"/></svg> Личные данные и деанон</span>
+    <span class="chev">⌄</span>
+  </summary>
+  <div class="section-body">
+    <article class="rule" id="r10-1">
+      <div class="rule-head"><span class="rule-num">10.1</span><span>Запрещено распространять личные данные пользователя проекта (деанон), а также использовать фальсифицированные «доказательства» или сливы.</span></div>
+      <div class="penalties-list">
+        <span class="penalty penalty-mute-long"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Мьют на 3 дня</span>
+        <span class="penalty penalty-ban"><svg class="icon-cross-circle"><use href="#cross-circle-icon"/></svg> Бан навсегда</span>
+      </div>
+      <p class="note">Примеры: ФИО, дата и место рождения, адрес проживания и регистрации, номер телефона, электронная почта, ИНН, паспортные данные, СНИЛС, банковские данные, биометрические данные, данные о семье, фотографии, личные переписки, IP-адрес и т.п.</p>
+    </article>
+  </div>
+</details>
+
+<!-- Раздел UT -->
+<details class="section" id="ut" open>
+  <summary>
+    <span class="num">UT</span>
+    <span class="sumtitle"><svg class="category-icon"><use href="#icon-info"/></svg> Уточнения и дополнительная информация</span>
+    <span class="chev">⌄</span>
+  </summary>
+  <div class="section-body">
+    <article class="rule" id="ut-1">
+      <div class="rule-head"><span class="rule-num">UT.1</span><span>Дезинформация, ахинея и вбросы</span></div>
+      <p>Бессмысленные сообщения, набор букв или символов, мемы, вызывающие дискомфорт у участников, очевидные выдумки, информационные вбросы и дезинформация, а также систематический повтор одних и тех же вопросов, мешающие общению.</p>
+      <a href="#r0-3" class="back-link">↩ Назад к правилу 0.3</a>
+    </article>
+
+    <article class="rule" id="ut-2">
+      <div class="rule-head"><span class="rule-num">UT.2</span><span>Торговля</span></div>
+      <p>Покупка / продажа товаров за реальные деньги, игровую валюту, обмены на другие предметы разрешены, однако администрация не несёт за них ответственности.</p>
+    </article>
+
+    <article class="rule" id="ut-3">
+      <div class="rule-head"><span class="rule-num">UT.3</span><span>Завышение цен (Оверпрайс)</span></div>
+      <p>Вы имеете полное право продать любой товар по любой цене. Однако просьба о покупке товара по сильно завышенной цене может приравниваться к попрошайничеству (Правило 1.1). Например, просьба купить обычный скин в Standoff 2 без наклеек за 99 999 золота.</p>
+      <a href="#r1-1" class="back-link">↩ Назад к правилу 1.1</a>
+    </article>
+
+    <article class="rule" id="ut-4">
+      <div class="rule-head"><span class="rule-num">UT.4</span><span>Шутки про родных</span></div>
+      <p>Депать / додепать даже в шутку членов семьи, администрацию или участников категорически запрещено.</p>
+      <a href="#r6-1" class="back-link">↩ Назад к правилу 6.1</a>
+    </article>
+
+    <article class="rule" id="ut-5">
+      <div class="rule-head"><span class="rule-num">UT.5</span><span>Запрещенные термины и символы</span></div>
+      <p>К нацизму и национализму относятся числа 1488, 88, 52; аббревиатуры CC, SS, «Гойда», Z, SVO, СВО; стикеры / сообщения с вентиляторами, свастикой, Manji (卍); упоминание Адольфа Гитлера, Чарли Чаплина, «3, 2, 1 рейхов», а также игр с нацистской тематикой и тематикой национализма и т.п.</p>
+      <a href="#r8-1" class="back-link">↩ Назад к правилу 8.1</a>
+    </article>
+
+    <article class="rule" id="ut-6">
+      <div class="rule-head"><span class="rule-num">UT.6</span><span>Серьезность угроз</span></div>
+      <p>Угрозы физической расправой, сливом данных или травлей рассматриваются с особым приоритетом. Заявление «это была шутка» или использование косвенных намеков не являются оправданием.</p>
+      <a href="#r3-4" class="back-link">↩ Назад к правилу 3.4</a>
+    </article>
+
+    <article class="rule" id="ut-7">
+      <div class="rule-head"><span class="rule-num">UT.7</span><span>Прецеденты и полнота правил</span></div>
+      <p>Отсутствие прямого запрета на какое-либо вредоносное действие в правилах не означает его допустимость. Администрация оставляет за собой право пресекать любые вредоносные действия на свое усмотрение.</p>
+    </article>
+
+    <div class="subhead">Дополнительные положения</div>
+    <article class="rule">
+      <div class="rule-head"><span class="rule-num">—</span><span>Модератор вправе выдать любой срок наказания, учитывая контекст и тяжесть нарушения. Указанные сроки даны для примерной ориентировки.</span></div>
+    </article>
+    <article class="rule">
+      <div class="rule-head"><span class="rule-num">—</span><span>Если вы нашли ошибки, дезинформацию или уязвимости в правилах, сообщите: @Moxito_To.</span></div>
+    </article>
+  </div>
+</details>
+
+</div>
+
+<div id="empty" class="empty">Ничего не найдено. Попробуйте другое слово.</div>
+
+<button id="backToTop" class="back-to-top" title="Наверх" aria-label="Наверх">↑</button>
+
+<footer class="foot">
+  YURTA HELPER · COMMUNITY RULES
+</footer>
+</main>
+
+<script>
+const search = document.getElementById('search');
+const sections = [...document.querySelectorAll('.section')];
+const empty = document.getElementById('empty');
+const backToTopBtn = document.getElementById('backToTop');
+
+function highlightText(node, query) {
+  if (node.nodeType === 3) {
+    const val = node.nodeValue;
+    const idx = val.toLowerCase().indexOf(query);
+    if (idx !== -1) {
+      const span = document.createElement('span');
+      const before = val.substring(0, idx);
+      const match = val.substring(idx, idx + query.length);
+      const after = val.substring(idx + query.length);
+      
+      span.innerHTML = `${escapeHTML(before)}<mark>${escapeHTML(match)}</mark>${escapeHTML(after)}`;
+      node.parentNode.replaceChild(span, node);
+    }
+  } else if (node.nodeType === 1 && node.childNodes && !['SCRIPT', 'STYLE', 'MARK', 'SVG', 'USE'].includes(node.tagName)) {
+    for (let i = 0; i < node.childNodes.length; i++) {
+      highlightText(node.childNodes[i], query);
+    }
+  }
+}
+
+function removeHighlights(node) {
+  if (node.tagName === 'MARK') {
+    const parent = node.parentNode;
+    parent.replaceChild(document.createTextNode(node.textContent), node);
+    parent.normalize();
+  } else if (node.childNodes) {
+    [...node.childNodes].forEach(removeHighlights);
+  }
+}
+
+function escapeHTML(str) {
+  return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
+}
+
+search.addEventListener('input', () => {
+  const q = search.value.trim().toLowerCase();
+  let shown = 0;
+
+  sections.forEach(section => {
+    removeHighlights(section);
+    const rules = [...section.querySelectorAll('.rule')];
+    let sectionMatches = 0;
+
+    rules.forEach(rule => {
+      const text = rule.textContent.toLowerCase();
+      const match = !q || text.includes(q);
+      rule.hidden = !match;
+      
+      if (match) {
+        sectionMatches++;
+        if (q) highlightText(rule, q);
+      }
+    });
+
+    const intro = section.querySelector('.section-body > .note');
+    if (intro) {
+      intro.hidden = !!q && !intro.textContent.toLowerCase().includes(q);
+    }
+
+    const visible = sectionMatches > 0 || (!q && rules.length === 0);
+    section.hidden = !visible;
+    if (visible) {
+      shown++;
+      if (q) section.open = true;
+    }
+  });
+
+  empty.style.display = shown ? 'none' : 'block';
+});
+
+// Открытие нужной спойлер-секции при переходах
+function handleHashNav() {
+  if (window.location.hash) {
+    const target = document.querySelector(window.location.hash);
+    if (target) {
+      const parentSection = target.closest('details');
+      if (parentSection) {
+        parentSection.open = true;
+      }
+    }
+  }
+}
+
+window.addEventListener('hashchange', handleHashNav);
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', () => setTimeout(handleHashNav, 10));
+});
+
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 300) {
+    backToTopBtn.classList.add('visible');
+  } else {
+    backToTopBtn.classList.remove('visible');
+  }
+});
+
+backToTopBtn.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+</script>
+</body>
+</html>
